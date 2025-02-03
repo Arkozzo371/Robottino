@@ -1,0 +1,35 @@
+<launch>
+
+<!-- Initial paramethers for Robot (Already Calibrated)-->
+    
+    <param name="r"         value="0.045"/>
+    <param name="l"         value="0.2"/>
+    <param name="w"         value="0.169"/>
+    <param name="T"         value="5"/>
+    <param name="N"         value="48"/>
+    <param name="freq"      value="50"/>
+
+<!-- Static paramethers for Initial Pose-->
+
+    <param name="x0"        value="0"/>
+    <param name="y0"        value="0"/>
+    <param name="theta0"    value="0"/>
+
+<!-- Launch of the nodes -->
+
+    <node pkg="robottino"   type="Velocities_complete"    name="Velocities_complete_Base_Frame" output="screen"/>
+    <node pkg="robottino"   type="Odometry_complete"      name="Odometry_complete" output="screen"/>
+    <node pkg="robottino"   type="Wheel_speeds_complete"  name="Wheel_speeds_complete" output="screen"/>
+    
+<!-- Allignament of the odom Reference Syst with World-->
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="Odom"       args="0 0 0 0 0 0 1 world odom"/>
+
+<!-- Reference system of the wheels format: name = "link's name" args = : "x y z q.x q.y q.z q.w from_link to_link"-->
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="Front_Left"   args="0.2 0.169 0 0 0 0 1 base_link fl"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="Front_Right"  args="0.2 -0.169 0 0 0 0 1 base_link fr"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="Rear_Left"    args="-0.2 0.169 0 0 0 0 1 base_link rl"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="Rear_Right"   args="-0.2 -0.169 0 0 0 0 1 base_link rr"/>
+
+</launch>

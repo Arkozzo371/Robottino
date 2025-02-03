@@ -1,0 +1,76 @@
+Members:
+- Andrea Archetti: 		10616682;
+- Wassim El Moukhal:	10601188;
+- Cristian Gariboldi:	10619305;
+
+File descriptions:
+the folders are following the standard configuration of a ROS package.
+In specific:
+- There are 3 classes:
+	- Velocities (it reads the data of the encoders and computes the velocities)
+	- Odometry (it reads the velocities than computes the odometry of the robot and does the TF broadcast)
+	- Wheels_speeds (it reads the velocities and computes the RPMs)
+Each class has own:
+- *.cpp (in /src): this file implements the class;
+- main_*.cpp (in /src): this is the main file of each classes where it is initialized and runned;
+- *.h (in /include/robottino/): this file declare each classes.
+In all the other folders:
+- /cfg:
+	- Integration_parameters.cfg implements the dynamic server to choose the integration method;
+	- robot_parameters.cfg implements the dynamic server that stores all the values of (r, l, w, N);
+- /launch:
+	- launch.launch: the launch file
+- /msg:
+	- Wheel_speeds_message.msg: define the strucrure of the custom message;
+- /srv: 
+	- Pose_Reset.srv: define the parameter of the responce and the request of the service;
+
+ROS Parameters (report of the commented lines of code):
+<!-- Initial paramethers for Robot (Already Calibrated)-->
+    
+    <param name="r"         value="0.045"/>
+    <param name="l"         value="0.2"/>
+    <param name="w"         value="0.169"/>
+    <param name="T"         value="5"/>
+    <param name="N"         value="48"/>
+    <param name="freq"      value="50"/>
+
+<!-- Static paramethers for Initial Pose-->
+
+    <param name="x0"        value="0"/>
+    <param name="y0"        value="0"/>
+    <param name="theta0"    value="0"/>
+
+Structure of the TF  Tree:
+- world:
+	- odom:
+	- base_link:
+		- fl
+		- fr
+		- rl
+		- rr
+
+Structure of any Custom Message (report of the lines of code):
+Header header
+float64 rpm_fl
+float64 rpm_fr
+float64 rpm_rr
+float64 rpm_rl
+
+Description of how to start/use the node:
+- Start: 
+use the command: roslaunch robottino launch.launch
+- Use: 
+	- to interact with the dynamic servers:
+	use the command: rosrun rqt_reconfigure rqt_reconfigure
+	then you can select to change the integrations parameters or the parameters of the robot (note that each modification applied to r, l, w, N should be done for Wheel_speeds params to)
+	- to call the Pose Reset Service:
+	use the command rosservice call /Pose_Reset followed by the 3 coordinates to be set (x, y, theta) 
+
+Calibration Procedure:
+The calibration of the robot parameters has been executed with a dynamic reconfigure. When starting the node and calling the dyn. reconfigure, we monitored the plotted data of the robot's 
+poses in plotjuggler compared to the GT poses so that, when modifying the parameters online and restarting the bag, we could check how the odometry was modified without killing the node. By doing so, we selected 
+we kept the parameter's values that best fitted the GT data.
+Firstly, we inspected the bag1 to interact with the parameters r and N, then, in order to select the parameters l and w, we analysed bag2 and finally bag3 was tested for validation purpose.
+We made sure that the calibration was done succesfully by running the all the bags again in RViz, comparing the topics /odom and /robot/pose.
+N.B.: before starting the bags, we always called the reset service in order to make sure that the frames were aligned.
